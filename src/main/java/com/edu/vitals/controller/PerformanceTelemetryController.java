@@ -3,6 +3,7 @@ package com.edu.vitals.controller;
 import com.edu.vitals.domain.PerformanceLog;
 import com.edu.vitals.domain.dto.OptimizationRecommendationResponse;
 import com.edu.vitals.domain.dto.PerformanceTelemetryRequest;
+import com.edu.vitals.domain.dto.SessionSummaryDto;
 import com.edu.vitals.service.PerformanceAuditService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,6 +44,14 @@ public class PerformanceTelemetryController {
         log.info("Received query for historical metrics for session: {}", sessionId);
         List<PerformanceLog> metrics = performanceAuditService.getMetricsBySessionId(sessionId);
         return ResponseEntity.ok(metrics);
+    }
+
+    @GetMapping("/metrics/session/{sessionId}/summary")
+    public ResponseEntity<SessionSummaryDto> getSessionSummary(
+            @PathVariable String sessionId) {
+        log.info("Received query for session telemetry summary: {}", sessionId);
+        SessionSummaryDto summary = performanceAuditService.getSessionSummary(sessionId);
+        return ResponseEntity.ok(summary);
     }
 
     @GetMapping("/health")
