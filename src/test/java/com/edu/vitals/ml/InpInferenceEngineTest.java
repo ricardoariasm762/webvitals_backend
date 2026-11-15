@@ -26,7 +26,7 @@ class InpInferenceEngineTest {
 
     @Test
     void testInferenceWithTestVector() {
-        // Vector de prueba: [long_task: 120ms, blocking: 95ms, dom_nodes: 2500, lag: 45ms]
+        // Test vector: [long_task: 120ms, blocking: 95ms, dom_nodes: 2500, lag: 45ms]
         float predictedInp = engine.predictInp(120.0f, 95.0f, 2500.0f, 45.0f);
 
         System.out.println("Predicted INP: " + predictedInp + " ms");
@@ -36,7 +36,7 @@ class InpInferenceEngineTest {
 
     @Test
     void testLowLatencyVector() {
-        // Vector ligero
+        // Lightweight test vector
         float predictedInp = engine.predictInp(10.0f, 5.0f, 400.0f, 2.0f);
 
         System.out.println("Low latency predicted INP: " + predictedInp + " ms");
