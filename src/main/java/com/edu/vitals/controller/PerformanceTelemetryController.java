@@ -32,7 +32,7 @@ public class PerformanceTelemetryController {
     @PostMapping("/evaluate")
     public ResponseEntity<OptimizationRecommendationResponse> evaluateTelemetry(
             @RequestBody PerformanceTelemetryRequest request) {
-        log.info("Recibida petición de evaluación de telemetría para sesión: {}", request.getSessionId());
+        log.info("Received telemetry evaluation request for session: {}", request.getSessionId());
         OptimizationRecommendationResponse response = performanceAuditService.auditPerformance(request);
         return ResponseEntity.ok(response);
     }
@@ -40,7 +40,7 @@ public class PerformanceTelemetryController {
     @GetMapping("/metrics/session/{sessionId}")
     public ResponseEntity<List<PerformanceLog>> getSessionMetrics(
             @PathVariable String sessionId) {
-        log.info("Recibida consulta de métricas históricas para sesión: {}", sessionId);
+        log.info("Received query for historical metrics for session: {}", sessionId);
         List<PerformanceLog> metrics = performanceAuditService.getMetricsBySessionId(sessionId);
         return ResponseEntity.ok(metrics);
     }
