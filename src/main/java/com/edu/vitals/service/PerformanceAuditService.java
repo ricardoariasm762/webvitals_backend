@@ -3,6 +3,7 @@ package com.edu.vitals.service;
 import com.edu.vitals.domain.PerformanceLog;
 import com.edu.vitals.domain.dto.OptimizationRecommendationResponse;
 import com.edu.vitals.domain.dto.PerformanceTelemetryRequest;
+import com.edu.vitals.domain.dto.SessionSummaryDto;
 import com.edu.vitals.ml.InpInferenceEngine;
 import com.edu.vitals.repository.PerformanceLogRepository;
 import lombok.RequiredArgsConstructor;
@@ -88,5 +89,53 @@ public class PerformanceAuditService {
     public List<PerformanceLog> getMetricsBySessionId(String sessionId) {
         log.debug("Querying historical metrics for session [{}]", sessionId);
         return performanceLogRepository.findBySessionIdOrderByTimestampAsc(sessionId);
+    }
+
+    @Transactional(readOnly = true)
+    public SessionSummaryDto getSessionSummary(String sessionId) {
+        List<PerformanceLog> logs = getMetricsBySessionId(sessionId);
+        if (logs.isEmpty()) {
+            return SessionSummaryDto.builder()
+                    .sessionId(sessionId)
+                    .totalFrames(0)
+                    .averageInpMs(0f)
+                    .peakInpMs(0f)
+                    .averageEventLoopLagMs(0f)
+                    .totalBlockingTimeMs(0f)
+                    .predominantCategory("UNKNOWN")
+                    .workerOffloadRecommended(false)
+                    .build();
+        }
+
+        int count = logs.size();
+        float sumInp = 0f;
+        float peakInp = 0f;
+        float sumLag = 0f;
+        float sumBlocking = 0f;
+        int poorCount = 0;
+
+        for (PerformanceLog p : logs) {
+            float inp = p.getPredictedInpMs() != null ? p.getPredictedInpMs() : 0f;
+            sumInp += inp;
+            if (inp > peakInp) peakInp = inp;
+            if (p.getEventLoopLagMs() != null) sumLag += p.getEventLoopLagMs();
+            if (p.getBlockingTimeMs() != null) sumBlocking += p.getBlockingTimeMs();
+            if ("POOR".equalsIgnoreCase(p.getVitalsStatus())) poorCount++;
+        }
+
+        float avgInp = sumInp / count;
+        float avgLag = sumLag / count;
+        String predominant = avgInp <= 200f ? "GOOD" : avgInp <= 500f ? "NEEDS_IMPROVEMENT" : "POOR";
+
+        return SessionSummaryDto.builder()
+                .sessionId(sessionId)
+                .totalFrames(count)
+                .averageInpMs(avgInp)
+                .peakInpMs(peakInp)
+                .averageEventLoopLagMs(avgLag)
+                .totalBlockingTimeMs(sumBlocking)
+                .predominantCategory(predominant)
+                .workerOffloadRecommended(poorCount > 0 || avgInp > 500f)
+                .build();
     }
 }
