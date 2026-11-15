@@ -56,4 +56,11 @@ public class PerformanceLog {
     @Column(nullable = false)
     @Builder.Default
     private LocalDateTime timestamp = LocalDateTime.now();
+
+    @Column(length = 64)
+    private String clientPlatform;
+
+    public boolean isWithinBudget() {
+        return predictedInpMs != null && predictedInpMs <= 200.0f;
+    }
 }
