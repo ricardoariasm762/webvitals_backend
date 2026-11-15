@@ -21,6 +21,7 @@ public class PerformanceAuditService {
 
     private final InpInferenceEngine inferenceEngine;
     private final PerformanceLogRepository performanceLogRepository;
+    private final ArchitecturalAdviceCatalog adviceCatalog;
 
     @Transactional
     public OptimizationRecommendationResponse auditPerformance(PerformanceTelemetryRequest request) {
@@ -36,26 +37,28 @@ public class PerformanceAuditService {
 
         // 2. Core Web Vitals threshold classification & UI technical advice
         String vitalsCategory;
-        String architecturalAdvice;
         boolean offloadToWorker;
         boolean yieldMainThread;
 
         if (predictedInp <= 200.0f) {
             vitalsCategory = "GOOD";
-            architecturalAdvice = "Presupuesto de fotogramas óptimo. Las tareas pueden continuar en el Main Thread sin degradación perceptible.";
             offloadToWorker = false;
             yieldMainThread = false;
         } else if (predictedInp <= 500.0f) {
             vitalsCategory = "NEEDS_IMPROVEMENT";
-            architecturalAdvice = "Riesgo de retraso de renderizado. Fragmentar microtareas pesadas utilizando requestIdleCallback() o scheduler.yield().";
             offloadToWorker = false;
             yieldMainThread = true;
         } else {
             vitalsCategory = "POOR";
-            architecturalAdvice = "Saturación crítica del Event Loop. Trasladar inmediatamente la ejecución del algoritmo intensivo a un Web Worker desacoplado.";
             offloadToWorker = true;
             yieldMainThread = true;
         }
+
+        String architecturalAdvice = adviceCatalog != null ?
+                adviceCatalog.resolveAdvice(vitalsCategory) :
+                (vitalsCategory.equals("GOOD") ? ArchitecturalAdviceCatalog.GOOD_ADVICE :
+                        vitalsCategory.equals("NEEDS_IMPROVEMENT") ? ArchitecturalAdviceCatalog.NEEDS_IMPROVEMENT_ADVICE :
+                                ArchitecturalAdviceCatalog.POOR_ADVICE);
 
         // 3. Telemetry persistence and prediction recording
         PerformanceLog entity = PerformanceLog.builder()
