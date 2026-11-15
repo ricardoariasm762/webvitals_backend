@@ -1,18 +1,21 @@
 package com.edu.vitals.config;
 
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
- * Web MVC CORS configuration binding externalized properties.
+ * Web MVC CORS configuration binding externalized properties with fallback.
  */
 @Configuration
-@RequiredArgsConstructor
 public class CorsConfig implements WebMvcConfigurer {
 
     private final CorsProperties corsProperties;
+
+    public CorsConfig(@Autowired(required = false) CorsProperties corsProperties) {
+        this.corsProperties = corsProperties != null ? corsProperties : new CorsProperties();
+    }
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
