@@ -16,7 +16,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgumentException(
             IllegalArgumentException ex, HttpServletRequest request) {
-        log.warn("Petición inválida detectada en {}: {}", request.getRequestURI(), ex.getMessage());
+        log.warn("Invalid request detected at {}: {}", request.getRequestURI(), ex.getMessage());
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .status(HttpStatus.BAD_REQUEST.value())
                 .error(HttpStatus.BAD_REQUEST.getReasonPhrase())
@@ -30,11 +30,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneralException(
             Exception ex, HttpServletRequest request) {
-        log.error("Error no controlado en {}: ", request.getRequestURI(), ex);
+        log.error("Unhandled exception at {}: ", request.getRequestURI(), ex);
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
-                .message("Ocurrió un error interno en el servicio de telemetría")
+                .message("An internal error occurred in the telemetry service")
                 .path(request.getRequestURI())
                 .timestamp(LocalDateTime.now())
                 .build();
