@@ -3,6 +3,7 @@ package com.edu.vitals.controller;
 import com.edu.vitals.domain.PerformanceLog;
 import com.edu.vitals.domain.dto.OptimizationRecommendationResponse;
 import com.edu.vitals.domain.dto.PerformanceTelemetryRequest;
+import com.edu.vitals.domain.dto.SessionSummaryDto;
 import com.edu.vitals.service.PerformanceAuditService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -87,6 +88,28 @@ class PerformanceTelemetryControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].sessionId").value("sess-100"))
                 .andExpect(jsonPath("$[0].vitalsStatus").value("GOOD"));
+    }
+
+    @Test
+    void testGetSessionSummary() throws Exception {
+        SessionSummaryDto summary = SessionSummaryDto.builder()
+                .sessionId("sess-summary")
+                .totalFrames(5)
+                .averageInpMs(110.0f)
+                .peakInpMs(180.0f)
+                .averageEventLoopLagMs(8.5f)
+                .totalBlockingTimeMs(45.0f)
+                .predominantCategory("GOOD")
+                .workerOffloadRecommended(false)
+                .build();
+
+        when(performanceAuditService.getSessionSummary("sess-summary")).thenReturn(summary);
+
+        mockMvc.perform(get("/api/vitals/metrics/session/sess-summary/summary"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.sessionId").value("sess-summary"))
+                .andExpect(jsonPath("$.totalFrames").value(5))
+                .andExpect(jsonPath("$.predominantCategory").value("GOOD"));
     }
 
     @Test
