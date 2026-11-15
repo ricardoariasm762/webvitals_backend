@@ -29,10 +29,10 @@ public class InpInferenceEngine {
     @PostConstruct
     public void init() {
         try {
-            log.info("Inicializando ONNX Runtime Environment...");
+            log.info("Initializing ONNX Runtime Environment...");
             this.env = OrtEnvironment.getEnvironment();
 
-            log.info("Cargando modelo ONNX desde classpath: {}", modelPath);
+            log.info("Loading ONNX model from classpath: {}", modelPath);
             ClassPathResource resource = new ClassPathResource(modelPath);
             byte[] modelBytes;
             try (InputStream is = resource.getInputStream()) {
@@ -44,13 +44,13 @@ public class InpInferenceEngine {
 
             if (!session.getInputNames().isEmpty()) {
                 this.inputName = session.getInputNames().iterator().next();
-                log.info("Modelo ONNX cargado exitosamente. Input tensor name: {}", this.inputName);
+                log.info("ONNX model loaded successfully. Input tensor name: {}", this.inputName);
             } else {
                 this.inputName = "float_input";
-                log.warn("No se detectó nombre de entrada en el modelo. Usando por defecto: {}", this.inputName);
+                log.warn("No input name detected in ONNX model. Using default: {}", this.inputName);
             }
         } catch (Exception e) {
-            log.error("Fallo al inicializar la sesión de ONNX Runtime con modelo [{}]. Se activará modo fallback.", modelPath, e);
+            log.error("Failed to initialize ONNX Runtime session with model [{}]. Fallback mode will be enabled.", modelPath, e);
         }
     }
 
@@ -69,10 +69,10 @@ public class InpInferenceEngine {
                     }
                 }
             } catch (Exception e) {
-                log.warn("Error durante la inferencia ONNX. Aplicando fallback heurístico matemático.", e);
+                log.warn("Error during ONNX inference. Applying heuristic mathematical fallback.", e);
             }
         } else {
-            log.warn("Sesión ONNX no disponible. Ejecutando estimación mediante fallback heurístico.");
+            log.warn("ONNX session not available. Running estimation via heuristic fallback.");
         }
 
         return calculateHeuristicFallback(longTaskDurationMs, blockingTimeMs, domNodeCount, eventLoopLagMs);
@@ -88,7 +88,7 @@ public class InpInferenceEngine {
         } else if (outputVal instanceof Number number) {
             return number.floatValue();
         } else {
-            throw new IllegalArgumentException("Formato de salida ONNX no reconocido: " + outputVal.getClass().getName());
+            throw new IllegalArgumentException("Unrecognized ONNX output format: " + outputVal.getClass().getName());
         }
     }
 
@@ -103,20 +103,20 @@ public class InpInferenceEngine {
 
     @PreDestroy
     public void cleanup() {
-        log.info("Liberando recursos de ONNX Runtime...");
+        log.info("Releasing ONNX Runtime resources...");
         try {
             if (session != null) {
                 session.close();
             }
         } catch (OrtException e) {
-            log.error("Error al cerrar OrtSession", e);
+            log.error("Error closing OrtSession", e);
         }
         try {
             if (env != null) {
                 env.close();
             }
         } catch (Exception e) {
-            log.error("Error al cerrar OrtEnvironment", e);
+            log.error("Error closing OrtEnvironment", e);
         }
     }
 }
