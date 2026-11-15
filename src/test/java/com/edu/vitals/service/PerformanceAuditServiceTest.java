@@ -3,6 +3,7 @@ package com.edu.vitals.service;
 import com.edu.vitals.domain.PerformanceLog;
 import com.edu.vitals.domain.dto.OptimizationRecommendationResponse;
 import com.edu.vitals.domain.dto.PerformanceTelemetryRequest;
+import com.edu.vitals.domain.dto.SessionSummaryDto;
 import com.edu.vitals.ml.InpInferenceEngine;
 import com.edu.vitals.repository.PerformanceLogRepository;
 import org.junit.jupiter.api.Test;
@@ -111,5 +112,39 @@ class PerformanceAuditServiceTest {
         assertNotNull(results);
         assertEquals(1, results.size());
         assertEquals("sess-1", results.get(0).getSessionId());
+    }
+
+    @Test
+    void testGetSessionSummary() {
+        PerformanceLog log1 = PerformanceLog.builder()
+                .sessionId("sess-agg")
+                .predictedInpMs(100.0f)
+                .eventLoopLagMs(10.0f)
+                .blockingTimeMs(20.0f)
+                .vitalsStatus("GOOD")
+                .build();
+
+        PerformanceLog log2 = PerformanceLog.builder()
+                .sessionId("sess-agg")
+                .predictedInpMs(150.0f)
+                .eventLoopLagMs(20.0f)
+                .blockingTimeMs(40.0f)
+                .vitalsStatus("GOOD")
+                .build();
+
+        when(performanceLogRepository.findBySessionIdOrderByTimestampAsc("sess-agg"))
+                .thenReturn(List.of(log1, log2));
+
+        SessionSummaryDto summary = performanceAuditService.getSessionSummary("sess-agg");
+
+        assertNotNull(summary);
+        assertEquals("sess-agg", summary.getSessionId());
+        assertEquals(2, summary.getTotalFrames());
+        assertEquals(125.0f, summary.getAverageInpMs());
+        assertEquals(150.0f, summary.getPeakInpMs());
+        assertEquals(15.0f, summary.getAverageEventLoopLagMs());
+        assertEquals(60.0f, summary.getTotalBlockingTimeMs());
+        assertEquals("GOOD", summary.getPredominantCategory());
+        assertFalse(summary.isWorkerOffloadRecommended());
     }
 }
