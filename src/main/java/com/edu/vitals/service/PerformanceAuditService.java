@@ -23,9 +23,9 @@ public class PerformanceAuditService {
 
     @Transactional
     public OptimizationRecommendationResponse auditPerformance(PerformanceTelemetryRequest request) {
-        log.info("Procesando telemetría para sesión [{}] en ruta [{}]", request.getSessionId(), request.getUrlPath());
+        log.info("Processing telemetry for session [{}] on path [{}]", request.getSessionId(), request.getUrlPath());
 
-        // 1. Ejecución de la inferencia predictiva
+        // 1. Predictive INP inference execution
         float predictedInp = inferenceEngine.predictInp(
                 request.getLongTaskDurationMs(),
                 request.getBlockingTimeMs(),
@@ -33,7 +33,7 @@ public class PerformanceAuditService {
                 request.getEventLoopLagMs()
         );
 
-        // 2. Clasificación según estándares oficiales de Core Web Vitals
+        // 2. Core Web Vitals threshold classification & UI technical advice
         String vitalsCategory;
         String architecturalAdvice;
         boolean offloadToWorker;
@@ -56,7 +56,7 @@ public class PerformanceAuditService {
             yieldMainThread = true;
         }
 
-        // 3. Persistencia de la telemetría y resultado predictivo
+        // 3. Telemetry persistence and prediction recording
         PerformanceLog entity = PerformanceLog.builder()
                 .sessionId(request.getSessionId())
                 .urlPath(request.getUrlPath())
@@ -71,10 +71,10 @@ public class PerformanceAuditService {
                 .build();
 
         performanceLogRepository.save(entity);
-        log.info("Registro de rendimiento persistido con ID [{}] - INP Predicho: {} ms ({})",
+        log.info("Performance log record persisted with ID [{}] - Predicted INP: {} ms ({})",
                 entity.getId(), predictedInp, vitalsCategory);
 
-        // 4. Retorno de la recomendación de optimización
+        // 4. Return optimization prescription
         return OptimizationRecommendationResponse.builder()
                 .predictedInpMs(predictedInp)
                 .vitalsCategory(vitalsCategory)
@@ -86,7 +86,7 @@ public class PerformanceAuditService {
 
     @Transactional(readOnly = true)
     public List<PerformanceLog> getMetricsBySessionId(String sessionId) {
-        log.debug("Consultando métricas de sesión [{}]", sessionId);
+        log.debug("Querying historical metrics for session [{}]", sessionId);
         return performanceLogRepository.findBySessionIdOrderByTimestampAsc(sessionId);
     }
 }
