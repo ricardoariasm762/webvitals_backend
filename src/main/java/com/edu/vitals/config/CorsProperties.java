@@ -18,7 +18,10 @@ public class CorsProperties {
             "http://localhost:4200",
             "http://localhost:8080",
             "http://localhost:8081",
-            "chrome-extension://*"
+            "chrome-extension://*",
+            "https://*.vercel.app",
+            "https://*.onrender.com",
+            "https://webvitals-backend.onrender.com"
     );
 
     private List<String> allowedMethods = List.of("GET", "POST", "PUT", "DELETE", "OPTIONS");
