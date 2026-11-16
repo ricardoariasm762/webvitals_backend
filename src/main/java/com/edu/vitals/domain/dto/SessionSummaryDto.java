@@ -27,3 +27,4 @@ public class SessionSummaryDto implements Serializable {
     private String predominantCategory;
     private boolean workerOffloadRecommended;
 }
+

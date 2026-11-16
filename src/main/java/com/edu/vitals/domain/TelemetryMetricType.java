@@ -10,3 +10,4 @@ public enum TelemetryMetricType {
     DOM_COMPLEXITY,
     PREDICTED_INP
 }
+

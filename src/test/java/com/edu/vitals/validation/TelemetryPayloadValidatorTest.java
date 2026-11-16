@@ -49,3 +49,4 @@ class TelemetryPayloadValidatorTest {
         assertTrue(errors.stream().anyMatch(e -> e.contains("Long task")));
     }
 }
+

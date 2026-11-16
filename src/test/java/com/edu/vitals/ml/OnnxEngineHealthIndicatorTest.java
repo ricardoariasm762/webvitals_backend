@@ -26,3 +26,4 @@ class OnnxEngineHealthIndicatorTest {
         assertEquals("ONNX Runtime Java", details.get("engine"));
     }
 }
+

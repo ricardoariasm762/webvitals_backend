@@ -29,3 +29,4 @@ public class CorsProperties {
 
     private long maxAge = 3600L;
 }
+

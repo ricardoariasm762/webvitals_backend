@@ -48,3 +48,4 @@ public class TelemetryPayloadValidator {
         return errors;
     }
 }
+

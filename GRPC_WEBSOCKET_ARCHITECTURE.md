@@ -19,3 +19,4 @@ Para auditorías de latencia crítica en Core Web Vitals, los flujos tradicional
 3. **Difusión Fan-Out (Servidor $\to$ Clientes Suscritos)**:
    - `SimpMessagingTemplate` emite inmediatamente el veredicto hacia el tópico dinámico `/topic/vitals/{sessionId}`.
    - El osciloscopio en Angular se actualiza en tiempo real con 0ms de latencia de sondeo.
+

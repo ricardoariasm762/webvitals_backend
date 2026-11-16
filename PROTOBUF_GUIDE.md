@@ -52,3 +52,4 @@ message StreamSummary {
 1. **Inmutabilidad de Etiquetas Numéricas**: Nunca cambies el número de etiqueta (`= 1`, `= 2`, etc.) asignado a un campo existente.
 2. **Campos Obsoletos (`reserved`)**: Si un campo se retira del modelo, márcalo con `reserved` para evitar colisiones futuras.
 3. **Compatibilidad Hacia Atrás**: Los campos nuevos deben ser opcionales (comportamiento predeterminado en `proto3`).
+

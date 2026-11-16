@@ -36,3 +36,4 @@ class ArchitecturalAdviceCatalogTest {
         assertTrue(advice.contains("Web Worker desacoplado"));
     }
 }
+

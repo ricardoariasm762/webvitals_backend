@@ -40,3 +40,4 @@ class GrpcLoggingInterceptorTest {
         verify(serverCallHandler, times(1)).startCall(any(), eq(headers));
     }
 }
+
